@@ -8,6 +8,7 @@ categories: research
 featured: false
 giscus_comments: false
 related_posts: false
+thumbnail: assets/img/posts/dgx-station/dgx-station.jpg
 
 authors:
   - name: Anmol Kabra
