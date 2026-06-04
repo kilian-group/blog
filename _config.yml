@@ -295,7 +295,10 @@ sass:
 
 jekyll-minifier:
   compress_javascript: false # set to false since we are using terser as the js minifier
-  exclude: ["robots.txt", "assets/js/search/*.js"]
+  # tailwind.css is already minified by the Tailwind build; re-running it through
+  # cssminify2 corrupts Tailwind v4's calc(var(--spacing)*N) into var( -  - spacing),
+  # which breaks every spacing rule (e.g. the fixed-top navbar offsets). Skip it.
+  exclude: ["robots.txt", "assets/js/search/*.js", "assets/css/tailwind.css"]
 
 # -----------------------------------------------------------------------------
 # Terser
