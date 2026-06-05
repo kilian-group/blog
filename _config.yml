@@ -121,8 +121,8 @@ bing_site_verification: # out your bing-site-verification ID (Bing Webmaster)
 # Blog
 # -----------------------------------------------------------------------------
 
-blog_name: Kilian's Group Blog # blog_name will be displayed in your blog page
-blog_description: Research notes from the Weinberger lab.
+blog_name: mlcore @ cornell blog # blog_name will be displayed in your blog page
+blog_description: Research notes from Kilian Weinberger's group 🤹
 permalink: /:year/:title/
 lsi: false # produce an index for related posts
 
