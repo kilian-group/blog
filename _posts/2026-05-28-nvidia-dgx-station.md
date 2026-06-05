@@ -79,19 +79,24 @@ RL fine-tuning is demanding because each gradient step requires a large number o
 
 Using the [SkyRL library](https://docs.skyrl.ai/docs) for agent training and the DGX Station's coherent memory, I was able to significantly reduce the prompt-to-gradient latency by co-locating the policy, the retriever, and the rollout buffer on the device. Rollout generation was fast enough that I had the full pipeline — multiple base models, environment variants, and evaluation benchmarks — working end-to-end within a week of project kickoff. That headroom let us test moonshot ideas cheaply, ruling out bad hypotheses in a day of training rather than a week. Once the recipe stabilized, we transitioned the longer scaled runs to our B200 university cluster, but the deskside DGX Station carried the iteration-heavy early phase of this work.
 
-## Accelerating Iteration on Diffusion-LM Retrieval
+## Rethinking RAG with Diffusion Language Models
 
 **[Paul Jünger](https://www.linkedin.com/in/pauljuenger)**
 
 Many retrieval-augmented generation (RAG) systems retrieve documents once from the input and keep them fixed while generating a response. But this assumes the question already contains everything needed to find the right evidence, which often isn't true for multi-step reasoning.
 
-In our recent work on Self-Augmenting Retrieval for Diffusion Language Models <d-cite key="juenger2026self"></d-cite>, we explore a different idea: using the intermediate states of a diffusion language model to refine retrieval as the answer takes shape. Diffusion models generate text by iteratively denoising a masked sequence, and these partially formed responses often surface key entities early. By turning intermediate hypotheses into retrieval queries, the model can fetch new evidence exactly when it becomes useful, rather than relying on a single static search.
+In our recent work on *Self-Augmenting Retrieval for Diffusion Language Models* (ICML 2026) <d-cite key="juenger2026self"></d-cite>, we explore a different idea: using the intermediate states of a diffusion language model to refine retrieval as the answer takes shape. Diffusion models generate text by iteratively denoising a masked sequence, and these partially formed responses often surface key entities early. By turning intermediate hypotheses into retrieval queries, the model can fetch new evidence exactly when it becomes useful, rather than relying on a single static search.
 
 Retrieval is also structurally well-suited to diffusion models. In RAG, much of the response is grounded directly in retrieved documents, copying or paraphrasing directly from context. Once strong evidence is available, many output tokens become conditionally independent given that evidence, making them naturally amenable to parallel decoding. In other words, RAG reduces the need for strict left-to-right coordination: precisely where diffusion models shine.
 
+{% include figure.liquid loading="eager" path="assets/img/posts/dgx-station/sardi-main.png" class="img-fluid rounded" %}
+<div class="caption" style="margin-top: -1rem; text-align: left; line-height: 1.3;">
+    Overview of Self-Augmenting Retrieval for Diffusion Language Models. At step $t$, the diffusion language model first denoises the partially masked response. Tokens with confidence $c_i \ge \tau_q$ then form a query to refresh the retrieved evidence, while only the more confident tokens ($c_i \ge \tau_c$) are committed to the next response $x^{t-1}$. Speculative tokens can thus inform retrieval before they are stable enough to commit.
+</div>
+
 Access to NVIDIA DGX Station with a GB300 Superchip was a key enabler for this work. Compared to our previous setup on a shared university cluster with a B200 GPU, deskside access to large-memory, high-performance compute let us iterate immediately instead of waiting in queue. The GB300's large memory enabled us to double our training batch size while cutting epoch time by ~20%. Even more importantly, it gave us full control to profile and optimize our pipeline with [NVIDIA Nsight](https://developer.nvidia.com/nsight-systems), without worrying about workload interference or privilege issues common on shared infrastructure.
 
-Overall, this work suggests a broader perspective: diffusion language models aren't just an alternative decoding strategy. Their iterative structure opens up new ways to integrate reasoning, retrieval, and uncertainty. And having powerful, on-demand compute locally has made it possible to explore these ideas at a much faster pace.
+Overall, this work suggests a broader perspective: diffusion language models aren't just an alternative decoding strategy. Their denoising structure opens up new ways to integrate reasoning, retrieval, and uncertainty. And having powerful, on-demand compute locally has made it possible to explore these ideas at a much faster pace.
 
 ## Generating Synthetic Data for Language Model Development
 
