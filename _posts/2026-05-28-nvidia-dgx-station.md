@@ -57,16 +57,13 @@ The DGX Station lifted that resource ceiling. With the large coherent memory on 
 
 While the machine was enabling larger model training, I wanted to get a rough sense of training efficiency on the DGX Station compared to the 4×H100 GPU setting. In the following figures, I compare GPU hours and wall clock time estimates of our RL fine-tuning experiments at different model sizes (lower is better for both).
 
-<div class="row mt-3">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/posts/dgx-station/fig-000.png" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/posts/dgx-station/fig-001.png" class="img-fluid rounded z-depth-1" %}
-    </div>
+<div style="width: 80%; margin: 0 auto;">
+{% include figure.liquid loading="eager" path="assets/img/posts/dgx-station/fig-000.png" class="img-fluid rounded z-depth-1" %}
+
+{% include figure.liquid loading="eager" path="assets/img/posts/dgx-station/fig-001.png" class="img-fluid rounded z-depth-1" %}
 </div>
 <div class="caption">
-    Note: Qwen3-4B on 4×H100 used a small training batch and rollout size due to memory constraints.
+    Note: Qwen3-4B on 4×H100 used a small training batch and rollout size due to memory constraints. Hence the lower wall clock time than on DGX Station.
 </div>
 
 Two findings stood out for me. First, the DGX Station used substantially fewer GPU-hours overall, roughly **3× fewer for the Qwen3-0.6B model**. This is because the multi-GPU setup on H100s incurred communication overhead across the four devices, while the DGX Station trained all model parameters in one coherent memory. Second, the DGX Station delivered competitive raw wall clock time against the multi-GPU system, despite being a single device. Note that the 4×H100 wall-clock time for Qwen3-4B looks better only because I trained it with a small batch and rollout size — it isn't an apples-to-apples comparison with the DGX Station run.
